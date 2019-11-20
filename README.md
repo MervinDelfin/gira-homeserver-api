@@ -11,11 +11,15 @@ import api
 
 client = api.Client("127.0.0.1", 80, "username", "password")
 
-type = 1
-id = 101
-value = 1
+# listener when client is ready, because connect() blocks thread
+def onClientReadyListener():
+    type = 1
+    id = 101
+    value = 1
+    # Turn device 101 on
+    client.setDevice(type, id, value)
 
-client.setDevice(type, id, value)
+client.onClientReady(onClientReadyListener)
 
 # connnect and block thread
 client.connect()
