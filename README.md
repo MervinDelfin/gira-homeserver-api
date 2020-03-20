@@ -27,7 +27,7 @@ client.connect()
 
 For more in depth comments check out the example.py
 
-**What is the code doing?**
+**What is this code doing?**
 
 It connects to your homeserver with the given credentials and turns on a lamp with id 101.
 
@@ -39,6 +39,35 @@ It connects to your homeserver with the given credentials and turns on a lamp wi
 | 0  | Used to get a value from a device instead of setting one | All devices
 | 1  | Set device value | Lights, Blinds, Thermostats
 | 20 | Also set device value. The only type that works with a garage | Garage
+
+
+## How do I get the device IDs?
+
+1. Run this code:
+
+```
+client = api.Client("127.0.0.1", 80, "username", "password")
+
+def onClientReadyListener(sessionToken):
+    print(sessionToken)
+
+client.onClientReady(onClientReadyListener)
+client.connect()
+```
+
+2. You should see a weird looking string in your console. Copy it and paste it behind the following URL:
+`https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?`
+This should look like this: `https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?XXXXXXXXXX.XX.X.XXXXXXXXX`.
+
+
+3. Open the downloaded file with an text editor and search for devices. Example:
+```
+<device id="200" txt="House\Basement\Room\Socket" template="0-16_5" uhr="1000000010">
+    <connect slot="slot_bin" tag="1337" />
+</device>
+```
+
+**`1337` IS the device id and NOT `200`. TAG = Device Id**
 
 
 ## More functions of Client class
