@@ -16,7 +16,7 @@ def onDeviceValue(deviceId, value):
 client.onDeviceValue(onDeviceValue)
 
 # Make sure you put all commands that are supposed to get called after connect() in this listener
-def onClientReady():
+def onClientReady(sessionToken):
     # get value from device by id
     # Sometimes this does not work - In that case it returns -1
     deviceId = 101
