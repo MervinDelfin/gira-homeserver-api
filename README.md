@@ -6,13 +6,13 @@ Git clone or download api.py. Only works **with Python 3!**
 
 Put the api.py in your project folder
 
-```
+```python
 import api
 
 client = api.Client("127.0.0.1", 80, "username", "password")
 
 # listener when client is ready, because connect() blocks thread
-def onClientReadyListener():
+def onClientReadyListener(sessionToken):
     type = 1
     id = 101
     value = 1
@@ -45,7 +45,9 @@ It connects to your homeserver with the given credentials and turns on a lamp wi
 
 1. Run this code:
 
-```
+```python
+import api
+
 client = api.Client("127.0.0.1", 80, "username", "password")
 
 def onClientReadyListener(sessionToken):
@@ -56,12 +58,14 @@ client.connect()
 ```
 
 2. You should see a weird looking string in your console. Copy it and paste it behind the following URL:
-`https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?`
+```url
+https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?
+```
 This should look like this: `https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?XXXXXXXXXX.XX.X.XXXXXXXXX`.
 
 
 3. Open the downloaded file with an text editor and search for devices. Example:
-```
+```xml
 <device id="200" txt="House\Basement\Room\Socket" template="0-16_5" uhr="1000000010">
     <connect slot="slot_bin" tag="1337" />
 </device>
@@ -73,7 +77,8 @@ This should look like this: `https://XXX.XXX.XXX.XXX/quad/client/client_project.
 ## More functions of Client class
 
 Please create an object first!
-```
+
+```python
 client = api.Client("127.0.0.1", 80, "username", "password")
 ```
 
@@ -81,7 +86,7 @@ List of all function the api exposes:
 
 ### setDevice(deviceType, deviceId, value)
 
-```
+```python
 client.setDevice(1, 101, 1)
 ```
 
@@ -90,7 +95,7 @@ client.setDevice(1, 101, 1)
 
 Returns always a float value from device with given id. Returns `-1` when device does not respond
 
-```
+```python
 value = client.getDeviceValue(101)
 ```
 
@@ -99,7 +104,7 @@ value = client.getDeviceValue(101)
 
 Listens for all device value changes
 
-```
+```python
 def onDeviceValueListener(deviceId, value):
     print(deviceId, value)
 
@@ -112,7 +117,7 @@ client.onDeviceValue(onDeviceValueListener)
 Connect to homeserver. Blocks thread.\
 Must be called **after setting listeners** and **before get or setting values** of devices.
 
-```
+```python
 client.connect()
 ```
 
@@ -120,7 +125,7 @@ client.connect()
 
 It is recommended to execute sets and gets of device values after onClientReady listener received the ready event
 
-```
+```python
 def onClientReadyListener():
     print("Client is ready")
     client.setDevice(1, 101, 1)
@@ -133,7 +138,7 @@ client.onClientReady(onClientReadyListener)
 
 Listens for connection error
 
-```
+```python
 def onConnectionErrorListener():
     print("Client connection aborted")
 
