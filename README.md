@@ -50,21 +50,14 @@ import api
 
 client = api.Client("127.0.0.1", 80, "username", "password")
 
-def onClientReadyListener(sessionToken):
-    print(sessionToken)
-
-client.onClientReady(onClientReadyListener)
+client.onClientReady(client.getDeviceIDs)
 client.connect()
 ```
 
-2. You should see a weird looking string in your console. Copy it and paste it behind the following URL:
-```url
-https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?
-```
-This should look like this: `https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?XXXXXXXXXX.XX.X.XXXXXXXXX`.
+2. It will create a client_project.xml file in the same directory as your python script
 
 
-3. Open the downloaded file with an text editor and search for devices. Example:
+3. Open the file with an text editor and search for devices. Example:
 ```xml
 <device id="200" txt="House\Basement\Room\Socket" template="0-16_5" uhr="1000000010">
     <connect slot="slot_bin" tag="1337" />
