@@ -27,7 +27,7 @@ class Client:
         }
 
         self.state = STATE_NOT_CONNECTED
-    
+
     def connect(self, timeout = 10.0):
         try:
             self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -56,7 +56,7 @@ class Client:
     def __listener(self, username, password):
         # start login procedure
         self.__socket.sendall(("GET /QUAD/LOGIN \r\n\r\n").encode())
-        
+
         try:
             while True:
                 try:
@@ -81,17 +81,18 @@ class Client:
                                 _thread.start_new_thread(handler, (args[1],))
 
                         elif action == 1:
-                            for handler in self.__eventListeners["deviceValueBroadcast"]:
-                                _thread.start_new_thread(handler, (int(args[1]), float(args[2])))
+                            for i in range(0,int((len(args)-1)/3)):
+                                for handler in self.__eventListeners["deviceValueBroadcast"]:
+                                    _thread.start_new_thread(handler, (int(args[1+i*3]), float(args[2+i*3])))
 
-                            if args[1] in self.__eventListeners["deviceValue"]:
-                                self.__eventListeners["deviceValue"][str(args[1])] = float(args[2])
+                                if args[1] in self.__eventListeners["deviceValue"]:
+                                    self.__eventListeners["deviceValue"][str(args[1+i*3])] = float(args[2+i*3])
 
                 except socket.error:
                     sleep(0.01)
         except KeyboardInterrupt:
             exit(0)
-    
+
     def getDeviceValue(self, id):
         self.__eventListeners["deviceValue"][str(id)] = -1
         self.__send("2|" + str(id) + "|0")
@@ -121,12 +122,20 @@ class Client:
 
     def __send(self, message):
         self.__socket.sendall((str(message) + "\x00").encode())
-    
+
     def setDevice(self, type, id, value = 0):
         if self.state == STATE_LOGGED_IN:
             self.__send(str(int(type)) + "|" + str(id) + "|" + str(value))
         else:
-            raise Exception("Not logged in. Please connect and login first before controlling devices.") 
+            raise Exception("Not logged in. Please connect and login first before controlling devices.")
+
+    def getDeviceIDs(self, sessionToken):
+        import requests, os
+        #get client project
+        project = requests.get(f'http://{self.host}:{self.port}/quad/client/client_project.xml?{sessionToken}')
+        #save client project
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        open(os.path.join(__location__, 'client_project.xml'), 'wb').write(project.content)
 
     def __generateHash(self, username, password, salt):
         salt = [ord(c) for c in salt]
