@@ -37,7 +37,7 @@ def onClientReady(sessionToken):
     value = 1
 
     # excutes the command by providing all 3 values
-    client.setDevice(deviceType, deviceId, value)
+    client.setDeviceValue(deviceType, deviceId, value)
 
 # Add listener
 client.onClientReady(onClientReady)

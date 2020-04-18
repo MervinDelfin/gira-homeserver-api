@@ -3,6 +3,7 @@
 import _thread
 import socket
 import hashlib
+import urllib.request
 from time import sleep, time
 
 STATE_NOT_CONNECTED = 0
@@ -11,6 +12,14 @@ STATE_LOGGED_IN = 2
 
 CONNECTION_ERROR_TIMED_OUT = 1
 CONNECTION_ERROR_REFUSED = 2
+
+
+class Session:
+    def __init__(self, sessionToken):
+        self.sessionToken = sessionToken
+
+    def getSessionToken(self):
+        return self.sessionToken
 
 class Client:
     def __init__(self, host, port, username, password):
@@ -76,6 +85,7 @@ class Client:
                         elif action == 93:
                             # login succeeded
                             self.state = STATE_LOGGED_IN
+                            self.session = Session(args[1])
 
                             for handler in self.__eventListeners["ready"]:
                                 _thread.start_new_thread(handler, (args[1],))
@@ -83,10 +93,10 @@ class Client:
                         elif action == 1:
                             for i in range(0,int((len(args)-1)/3)):
                                 for handler in self.__eventListeners["deviceValueBroadcast"]:
-                                    _thread.start_new_thread(handler, (int(args[1+i*3]), float(args[2+i*3])))
+                                    _thread.start_new_thread(handler, (int(args[1 + i * 3]), float(args[2 + i * 3])))
 
                                 if args[1] in self.__eventListeners["deviceValue"]:
-                                    self.__eventListeners["deviceValue"][str(args[1+i*3])] = float(args[2+i*3])
+                                    self.__eventListeners["deviceValue"][str(args[1 + i * 3])] = float(args[2 + i * 3])
 
                 except socket.error:
                     sleep(0.01)
@@ -123,19 +133,26 @@ class Client:
     def __send(self, message):
         self.__socket.sendall((str(message) + "\x00").encode())
 
-    def setDevice(self, type, id, value = 0):
+    def setDeviceValue(self, type, id, value = 0):
         if self.state == STATE_LOGGED_IN:
             self.__send(str(int(type)) + "|" + str(id) + "|" + str(value))
         else:
             raise Exception("Not logged in. Please connect and login first before controlling devices.")
 
-    def getDeviceIDs(self, sessionToken):
-        import requests, os
-        #get client project
-        project = requests.get(f'http://{self.host}:{self.port}/quad/client/client_project.xml?{sessionToken}')
-        #save client project
-        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        open(os.path.join(__location__, 'client_project.xml'), 'wb').write(project.content)
+    def setDevice(self, type, id, value = 0):
+        self.setDeviceValue(type, id, value)
+
+    def getDevices(self, sessionToken = None):
+        
+        if self.state == STATE_LOGGED_IN or sessionToken is not None:
+
+            if sessionToken is None:
+                sessionToken = self.session.getSessionToken()
+
+            with urllib.request.urlopen(f"http://{self.host}:{self.port}/quad/client/client_project.xml?{sessionToken}") as f:
+                return f.read().decode("utf-8")
+        else:
+            raise Exception("Please provide a sessionToken as argument or login first")
 
     def __generateHash(self, username, password, salt):
         salt = [ord(c) for c in salt]
