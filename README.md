@@ -2,6 +2,13 @@
 
 Git clone or download api.py. Only works **with Python 3!**
 
+# Table of contents
+
+* [Quick start](#how-do-i-use-it)
+* [Device Types](#device-types)
+* [Getting your devices](#how-do-i-get-the-device-ids)
+* [Documentation of all functions](#all-functions)
+
 ## How do I use it?
 
 Put the api.py in your project folder
@@ -12,12 +19,12 @@ import api
 client = api.Client("127.0.0.1", 80, "username", "password")
 
 # listener when client is ready, because connect() blocks thread
-def onClientReadyListener(sessionToken):
+def onClientReady(sessionToken):
     type = 1
     id = 101
     value = 1
     # Turn device 101 on
-    client.setDevice(type, id, value)
+    client.setDeviceValue(type, id, value)
 
 client.onClientReady(onClientReadyListener)
 
@@ -43,28 +50,28 @@ It connects to your homeserver with the given credentials and turns on a lamp wi
 
 ## How do I get the device IDs?
 
-1. Run this code:
+1. Download your device list
 
 ```python
 import api
 
 client = api.Client("127.0.0.1", 80, "username", "password")
 
-def onClientReadyListener(sessionToken):
-    print(sessionToken)
+def onClientReady(sessionToken):
+    # open file and download devices
+    file = open("my_devices.xml", "w")
+    file.write(client.getDevices())
+    file.close()
+    # close connection
+    client.close()
 
-client.onClientReady(onClientReadyListener)
+
+client.onClientReady(onClientReady)
 client.connect()
 ```
 
-2. You should see a weird looking string in your console. Copy it and paste it behind the following URL:
-```url
-https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?
-```
-This should look like this: `https://XXX.XXX.XXX.XXX/quad/client/client_project.xml?XXXXXXXXXX.XX.X.XXXXXXXXX`.
 
-
-3. Open the downloaded file with an text editor and search for devices. Example:
+2. Open the file with an text editor and search for devices. Example:
 ```xml
 <device id="200" txt="House\Basement\Room\Socket" template="0-16_5" uhr="1000000010">
     <connect slot="slot_bin" tag="1337" />
@@ -73,8 +80,22 @@ This should look like this: `https://XXX.XXX.XXX.XXX/quad/client/client_project.
 
 **`1337` IS the device id and NOT `200`. TAG = Device Id**
 
+3. Control your socket by the api
+```python
+import api
 
-## More functions of Client class
+client = api.Client("127.0.0.1", 80, "username", "password")
+
+def onClientReady(sessionToken):
+    # turns your socket with id 1337 on
+    client.setDeviceValue(1, 1337, 1)
+
+client.onClientReady(onClientReady)
+client.connect()
+```
+
+
+## All functions
 
 Please create an object first!
 
@@ -84,12 +105,15 @@ client = api.Client("127.0.0.1", 80, "username", "password")
 
 List of all function the api exposes:
 
-### setDevice(deviceType, deviceId, value)
+### setDeviceValue(deviceType, deviceId, value)
 
 ```python
 client.setDevice(1, 101, 1)
 ```
 
+### Deprecated ~~setDevice(deviceType, deviceId, value)~~
+
+Please use `setDeviceValue(deviceType, deviceId, value)` instead
 
 ### getDeviceValue(deviceId): float
 
@@ -128,7 +152,7 @@ It is recommended to execute sets and gets of device values after onClientReady 
 ```python
 def onClientReadyListener():
     print("Client is ready")
-    client.setDevice(1, 101, 1)
+    client.setDeviceValue(1, 101, 1)
     print("Device value is", client.getDeviceValue(101))
 
 client.onClientReady(onClientReadyListener)
