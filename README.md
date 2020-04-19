@@ -71,7 +71,7 @@ client.connect()
 ```
 
 
-2. Open the file with an text editor and search for devices. Example:
+2. Open the file `my_devices.xml` with a text editor and search for devices. Example:
 ```xml
 <device id="200" txt="House\Basement\Room\Socket" template="0-16_5" uhr="1000000010">
     <connect slot="slot_bin" tag="1337" />
@@ -108,12 +108,12 @@ List of all function the api exposes:
 ### setDeviceValue(deviceType, deviceId, value)
 
 ```python
-client.setDevice(1, 101, 1)
+client.setDeviceValue(1, 101, 1)
 ```
 
 ### Deprecated ~~setDevice(deviceType, deviceId, value)~~
 
-Please use `setDeviceValue(deviceType, deviceId, value)` instead
+Please use [`setDeviceValue(deviceType, deviceId, value)`](#setdevicevaluedevicetype-deviceid-value) instead
 
 ### getDeviceValue(deviceId): float
 
