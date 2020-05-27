@@ -1,26 +1,41 @@
-# Gira Homeserver API
+# Gira Homeserver API Client
+
+Have access to all your GIRA home appliances.
+You can turn lights on and off, open blinds via cronjobs or using a webfrontend (not included)
+and open your garage when you come home (using flask + automate for Android).
 
 **Only works with Python 3!**
 
 # Table of contents
 
 * [Installation](#installation)
-* [Quick start](#how-do-i-use-it)
+* [Quick start](#quick-start-guide)
 * [Device Types](#device-types)
 * [Getting your devices](#how-do-i-get-the-device-ids)
 * [Documentation of all functions](#all-functions)
 
 ## Installation
 
-### pip (recommended)
+There are 3 ways of installating the API Client. We recommend using pip for smaller projects and requirements.txt for bigger ones.
 
-1. Install using pip (**sometimes you have to use pip instead of pip3**)
+### 1. pip (recommended)
+
+Install using pip (**sometimes you have to use pip instead of pip3**)
 ```bash
 pip3 install git+https://github.com/leoyn/gira-homeserver-api.git
 ```
 
+### 2. pip + requirements.txt (for automated deployments)
+If you are using a `requirements.txt` file you can the url as shown below:
+```python
+# other packages here
+git@github.com:leoyn/gira-homeserver-api.git
+```
+Then do your `pip install -r requirements.txt`.
 
-### manually (not recommended)
+### 
+
+### 3. manually (not recommended)
 1. Clone using git: 
 ```bash
 git clone git@github.com:leoyn/gira-homeserver-api.git
@@ -30,9 +45,7 @@ git clone git@github.com:leoyn/gira-homeserver-api.git
 cp gira-homeserver-api/gira_homeserver_api my-home-project/gira_homeserver_api
 ```
 
-## How do I use it?
-
-Put the api.py in your project folder
+## Quick Start Guide
 
 ```python
 import gira_homeserver_api as api
