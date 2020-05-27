@@ -16,7 +16,7 @@ and open your garage when you come home (using flask + automate for Android).
 
 ## Installation
 
-There are 3 ways of installating the API Client. We recommend using pip for smaller projects and requirements.txt for bigger ones.
+There are 3 ways of installing the API Client. We recommend using pip for smaller projects and requirements.txt for bigger ones.
 
 ### 1. pip (recommended)
 
@@ -31,7 +31,7 @@ If you are using a `requirements.txt` file you can the url as shown below:
 # other packages here
 git@github.com:leoyn/gira-homeserver-api.git
 ```
-Then do your `pip install -r requirements.txt`.
+Then do your `pip3 install -r requirements.txt`.
 
 ### 
 
