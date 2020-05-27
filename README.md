@@ -26,10 +26,10 @@ pip3 install git+https://github.com/leoyn/gira-homeserver-api.git
 ```
 
 ### 2. pip + requirements.txt (for automated deployments)
-If you are using a `requirements.txt` file you can the url as shown below:
+If you are using a `requirements.txt` file you can add the URL as shown below:
 ```python
 # other packages here
-git@github.com:leoyn/gira-homeserver-api.git
+git+https://github.com/leoyn/gira-homeserver-api.git
 ```
 Then do your `pip3 install -r requirements.txt`.
 
