@@ -27,7 +27,7 @@ git clone git@github.com:leoyn/gira-homeserver-api.git
 ```
 2. Copy `gira_homeserver_api.py` into your project folder 
 ```bash
-cp gira-homeserver-api/gira_homeserver_api.py my-home-project/gira_homeserver_api.py
+cp gira-homeserver-api/gira_homeserver_api my-home-project/gira_homeserver_api
 ```
 
 ## How do I use it?
