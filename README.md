@@ -1,20 +1,41 @@
 # Gira Homeserver API
 
-Git clone or download api.py. Only works **with Python 3!**
+**Only works with Python 3!**
 
 # Table of contents
 
+* [Installation](#installation)
 * [Quick start](#how-do-i-use-it)
 * [Device Types](#device-types)
 * [Getting your devices](#how-do-i-get-the-device-ids)
 * [Documentation of all functions](#all-functions)
+
+## Installation
+
+### pip (recommended)
+
+1. Install using pip (**sometimes you have to use pip instead of pip3**)
+```bash
+pip3 install git+https://github.com/leoyn/gira-homeserver-api.git
+```
+
+
+### manually (not recommended)
+1. Clone using git: 
+```bash
+git clone git@github.com:leoyn/gira-homeserver-api.git
+```
+2. Copy `gira_homeserver_api.py` into your project folder 
+```bash
+cp gira-homeserver-api/gira_homeserver_api.py my-home-project/gira_homeserver_api.py
+```
 
 ## How do I use it?
 
 Put the api.py in your project folder
 
 ```python
-import api
+import gira_homeserver_api as api
 
 client = api.Client("127.0.0.1", 80, "username", "password")
 
@@ -53,7 +74,7 @@ It connects to your homeserver with the given credentials and turns on a lamp wi
 1. Download your device list
 
 ```python
-import api
+import gira_homeserver_api as api
 
 client = api.Client("127.0.0.1", 80, "username", "password")
 
@@ -82,7 +103,7 @@ client.connect()
 
 3. Control your socket by the api
 ```python
-import api
+import gira_homeserver_api as api
 
 client = api.Client("127.0.0.1", 80, "username", "password")
 

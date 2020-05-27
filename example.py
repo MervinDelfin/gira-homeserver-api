@@ -1,5 +1,5 @@
 # import api
-import api
+import gira_homeserver_api as api
 
 # create a client object
 # XXX.XXX.XXX.XXX = ip of your gira homeserver
@@ -20,7 +20,8 @@ def onClientReady(sessionToken):
     # get value from device by id
     # Sometimes this does not work - In that case it returns -1
     deviceId = 101
-    client.getDeviceValue(deviceId)
+    deviceValue = client.getDeviceValue(deviceId)
+    print(deviceValue) # returns -1 if device is not reachable
 
     # control a device
 
