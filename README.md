@@ -151,7 +151,8 @@ Please use [`setDeviceValue(deviceType, deviceId, value)`](#setdevicevaluedevice
 
 ### getDeviceValue(deviceId): float
 
-Returns always a float value from device with given id. Returns `-1` when device does not respond
+Always returns a float value for device with given id.\
+Returns `None` when device does not respond or device does not exist.
 
 ```python
 value = client.getDeviceValue(101)

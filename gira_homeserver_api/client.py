@@ -100,12 +100,12 @@ class Client:
         
 
     def getDeviceValue(self, id):
-        self.__eventListeners["deviceValue"][str(id)] = -1
+        self.__eventListeners["deviceValue"][str(id)] = None
         self.__send("2|" + str(id) + "|0")
 
         start = time()
 
-        while self.__eventListeners["deviceValue"][str(id)] == -1 and time() - start < 2:
+        while self.__eventListeners["deviceValue"][str(id)] == None and time() - start < 2:
             sleep(0.1)
 
         value = self.__eventListeners["deviceValue"][str(id)]
