@@ -40,7 +40,7 @@ Then do your `pip3 install -r requirements.txt`.
 ```bash
 git clone git@github.com:leoyn/gira-homeserver-api.git
 ```
-2. Copy `gira_homeserver_api.py` into your project folder 
+2. Copy the `gira_homeserver_api` folder into your project folder
 ```bash
 cp gira-homeserver-api/gira_homeserver_api my-home-project/gira_homeserver_api
 ```
