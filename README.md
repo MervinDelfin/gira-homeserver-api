@@ -12,7 +12,7 @@ and open your garage when you come home (using flask + automate for Android).
 * [Quick start](#quick-start-guide)
 * [Device Types](#device-types)
 * [Getting your devices](#how-do-i-get-the-device-ids)
-* [Documentation of all functions](#all-functions)
+* [Documentation of all functions](#documentation)
 
 ## Installation
 
@@ -129,7 +129,7 @@ client.connect()
 ```
 
 
-## All functions
+## Documentation
 
 Please create an object first!
 
@@ -172,12 +172,16 @@ client.onDeviceValue(onDeviceValueListener)
 
 ### connect()
 
-Connect to homeserver. Blocks thread.\
+Connect to homeserver.\
 Must be called **after setting listeners** and **before get or setting values** of devices.
 
 ```python
 client.connect()
 ```
+
+**Arguments:**
+* `asynchronous`: When setting to `True` client won't block thread. Default: `False`.
+* `timeout`: time (in seconds) until connection will be dropped when server does not respond. Default: `30.0`.
 
 ### onClientReady(listener)
 
@@ -201,4 +205,21 @@ def onConnectionErrorListener():
     print("Client connection aborted")
 
 client.onConnectionError(onConnectionErrorListener)
+```
+
+### close()
+
+Close connection
+
+```python
+client.close()
+```
+
+### send(text)
+
+Send raw text to server.\
+**Please be aware that this might has negative side effects. Use with caution.**
+
+```python
+client.send("1|1|1")
 ```
