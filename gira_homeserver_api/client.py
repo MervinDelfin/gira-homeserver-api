@@ -29,74 +29,80 @@ class Client:
 
         self.state = STATE_NOT_CONNECTED
 
-    def connect(self, timeout = 30.0, asynchronous = False):
+    def connect(self, timeout = 30.0, asynchronous = False, reconnect = True):
         if asynchronous == True:
-            _thread.start_new_thread(self.__connect,(timeout,))
+            _thread.start_new_thread(self.__connect,(timeout, reconnect))
         else:
-            self.__connect(timeout)
+            self.__connect(timeout, reconnect)
 
-    def __connect(self, timeout):
-        try:
-            self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.__socket.settimeout(timeout)
-            self.__socket.connect((self.host, self.port))
-
-            self.state = STATE_CONNECTED
-
+    def __connect(self, timeout, reconnect):
+        while reconnect:
             try:
-                self.__connection = self.__listener(self.username, self.password)
+                try:
+                    self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.__socket.settimeout(timeout)
+                    self.__socket.connect((self.host, self.port))
+                except:
+                    for handler in self.__eventListeners["error"]:
+                        handler(CONNECTION_ERROR_TIMED_OUT)
+
+                    self.state = STATE_NOT_CONNECTED
+
+                    if reconnect == False:
+                        return CONNECTION_ERROR_TIMED_OUT
+                else:
+                    self.state = STATE_CONNECTED
+                    self.__listener(self.username, self.password)
+                finally:
+                    sleep(3)
             except KeyboardInterrupt:
                 exit(0)
-        except OSError:
-            for handler in self.__eventListeners["error"]:
-                handler(CONNECTION_ERROR_TIMED_OUT)
-
-            return CONNECTION_ERROR_TIMED_OUT
-        except ConnectionRefusedError:
-            for handler in self.__eventListeners["error"]:
-                handler(CONNECTION_ERROR_REFUSED)
-
-            return CONNECTION_ERROR_REFUSED
 
     def __listener(self, username, password):
         # start login procedure
         self.__socket.sendall(("GET /QUAD/LOGIN \r\n\r\n").encode())
 
-        while True: 
-            data = self.__socket.recv(2048)
-
-            if data:
-                data = data.decode()
-                args = data.split("|")
-                try:
-                    action = int(args[0])
-                except:
-                    raise Exception("Wrong data from server")
-                    exit(0)
-                else:
-                    if action == 100:
-                        # provide username
-                        self.__send("90|" + username + "|")
-                    elif action == 91:
-                        # provide hashed password
-                        self.__send("92|" + self.__generateHash(username, password, args[1]) + "|")
-                    elif action == 93:
-                        # login succeeded
-                        self.state = STATE_LOGGED_IN
-                        self.session = Session(args[1])
-
-                        for handler in self.__eventListeners["ready"]:
-                            _thread.start_new_thread(handler, (args[1],))
-
-                    elif action == 1:
-                        for i in range(0,int((len(args)-1)/3)):
-                            for handler in self.__eventListeners["deviceValueBroadcast"]:
-                                _thread.start_new_thread(handler, (int(args[1 + i * 3]), float(args[2 + i * 3])))
-
-                            if args[1] in self.__eventListeners["deviceValue"]:
-                                self.__eventListeners["deviceValue"][str(args[1 + i * 3])] = float(args[2 + i * 3])
-            else:
+        while True:
+            try:
+                data = self.__socket.recv(2048)
+            except socket.timeout:
                 break
+            except socket.error:
+                break
+            else:
+                if data:
+                    data = data.decode()
+                    args = data.split("|")
+                    try:
+                        action = int(args[0])
+                    except:
+                        raise Exception("Wrong data from server")
+                        exit(0)
+                    else:
+                        if action == 100:
+                            # provide username
+                            self.__send("90|" + username + "|")
+                        elif action == 91:
+                            # provide hashed password
+                            self.__send("92|" + self.__generateHash(username, password, args[1]) + "|")
+                        elif action == 93:
+                            # login succeeded
+                            self.state = STATE_LOGGED_IN
+                            self.session = Session(args[1])
+
+                            for handler in self.__eventListeners["ready"]:
+                                _thread.start_new_thread(handler, (args[1],))
+
+                        elif action == 1:
+                            for i in range(0,int((len(args)-1)/3)):
+                                for handler in self.__eventListeners["deviceValueBroadcast"]:
+                                    _thread.start_new_thread(handler, (int(args[1 + i * 3]), float(args[2 + i * 3])))
+
+                                if args[1] in self.__eventListeners["deviceValue"]:
+                                    self.__eventListeners["deviceValue"][str(args[1 + i * 3])] = float(args[2 + i * 3])
+                else:
+                    break
+        return
         
 
     def getDeviceValue(self, id):

@@ -183,6 +183,7 @@ client.connect()
 **Arguments:**
 * `asynchronous`: When setting to `True` client won't block thread. Default: `False`.
 * `timeout`: time (in seconds) until connection will be dropped when server does not respond. Default: `30.0`.
+* `reconnect`: automatically reconnect when connections drops. Default: `True`.
 
 ### onClientReady(listener)
 
