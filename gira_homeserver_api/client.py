@@ -5,7 +5,7 @@ import urllib.request
 from time import sleep, time
 from .session import Session
 
-STATE_NOT_CONNECTED = 0
+STATE_DISCONNECTED = 0
 STATE_CONNECTED = 1
 STATE_LOGGED_IN = 2
 
@@ -27,36 +27,41 @@ class Client:
             "error": []
         }
 
-        self.state = STATE_NOT_CONNECTED
+        self.state = STATE_DISCONNECTED
 
-    def connect(self, timeout = 30.0, asynchronous = False, reconnect = True):
+    def connect(self, asynchronous = False, reconnect = True):
         if asynchronous == True:
-            _thread.start_new_thread(self.__connect,(timeout, reconnect))
+            _thread.start_new_thread(self.__connect,(reconnect,))
         else:
-            self.__connect(timeout, reconnect)
+            self.__connect(reconnect)
 
-    def __connect(self, timeout, reconnect):
-        while reconnect:
+    def __connect(self, reconnect):
+        while True:
             try:
-                try:
-                    self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    self.__socket.settimeout(timeout)
-                    self.__socket.connect((self.host, self.port))
-                except:
-                    for handler in self.__eventListeners["error"]:
-                        handler(CONNECTION_ERROR_TIMED_OUT)
+                self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.__socket.setblocking(1)
+                self.__socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+                self.__socket.connect((self.host, self.port))
+            except:
+                for handler in self.__eventListeners["error"]:
+                    handler(CONNECTION_ERROR_TIMED_OUT)
 
-                    self.state = STATE_NOT_CONNECTED
+                    self.state = STATE_DISCONNECTED
 
-                    if reconnect == False:
-                        return CONNECTION_ERROR_TIMED_OUT
-                else:
-                    self.state = STATE_CONNECTED
-                    self.__listener(self.username, self.password)
-                finally:
+                if reconnect == True:
                     sleep(3)
-            except KeyboardInterrupt:
-                exit(0)
+                else:
+                    break
+            else:
+                self.state = STATE_CONNECTED
+                try:
+                    self.__listener(self.username, self.password)
+                    break
+                except:
+                    if reconnect == True:
+                        sleep(3)
+                    else:
+                        break
 
     def __listener(self, username, password):
         # start login procedure
@@ -65,10 +70,10 @@ class Client:
         while True:
             try:
                 data = self.__socket.recv(2048)
+            except OSError:
+                return
             except socket.timeout:
-                break
-            except socket.error:
-                break
+                raise Exception("Connection timed out")
             else:
                 if data:
                     data = data.decode()
@@ -77,7 +82,6 @@ class Client:
                         action = int(args[0])
                     except:
                         raise Exception("Wrong data from server")
-                        exit(0)
                     else:
                         if action == 100:
                             # provide username
@@ -94,15 +98,14 @@ class Client:
                                 _thread.start_new_thread(handler, (args[1],))
 
                         elif action == 1:
-                            for i in range(0,int((len(args)-1)/3)):
+                            for i in range(0, int((len(args) - 1) / 3)):
                                 for handler in self.__eventListeners["deviceValueBroadcast"]:
                                     _thread.start_new_thread(handler, (int(args[1 + i * 3]), float(args[2 + i * 3])))
 
                                 if args[1] in self.__eventListeners["deviceValue"]:
                                     self.__eventListeners["deviceValue"][str(args[1 + i * 3])] = float(args[2 + i * 3])
                 else:
-                    break
-        return
+                    raise Exception("No data received")
         
 
     def getDeviceValue(self, id):
@@ -149,7 +152,7 @@ class Client:
         if self.state == STATE_LOGGED_IN or sessionToken is not None:
 
             if sessionToken is None:
-                sessionToken = self.session.getSessionToken()
+                sessionToken = self.session.getToken()
 
             with urllib.request.urlopen(f"http://{self.host}:{self.port}/quad/client/client_project.xml?{sessionToken}") as handle:
                 return handle.read().decode("utf-8")
@@ -167,6 +170,6 @@ class Client:
         return hash
 
     def close(self):
-        if self.state != STATE_NOT_CONNECTED:
+        if self.state != STATE_DISCONNECTED:
             self.__socket.close()
-            self.state = STATE_NOT_CONNECTED
+            self.state = STATE_DISCONNECTED
