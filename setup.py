@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='gira_homeserver_api',
-    packages=["gira_homeserver_api"],
+    packages=["gira_homeserver_api","gira_homeserver_api.devices"],
     description='Unofficial QUAD API Client of the Gira Homeserver',
     version='0.1',
     url='http://github.com/leoyn/gira-homeserver-api',
