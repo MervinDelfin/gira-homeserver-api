@@ -10,9 +10,12 @@ and open your garage when you come home (using flask + automate for Android).
 
 * [Installation](#installation)
 * [Quick start](#quick-start-guide)
-* [Device Types](#device-types)
+* [Internal Device Types](#internal-device-types)
 * [Getting your devices](#how-do-i-get-the-device-ids)
-* [Documentation of all functions](#documentation)
+* [Documentation](#documentation)
+  * [Client](#client)
+  * [Parser](#parser)
+  * [Devices](#devices)
 
 ## Installation
 
@@ -66,14 +69,17 @@ client.onClientReady(onClientReadyListener)
 client.connect()
 ```
 
-For more in depth comments check out the example.py
+For more in depth comments check out the [quick_start.py](https://github.com/leoyn/gira-homeserver-api/blob/master/examples/quick_start.py) in the examples directory.
 
 **What is this code doing?**
 
 It connects to your homeserver with the given credentials and turns on a lamp with id 101.
 
-## Device Types
+## Internal Device Types
 
+These are device types when you access your Gira Homeserver directly via the client.
+When you want to use the device object instead look for [here](#devices).
+They use the same devices types of GIRA but asbtract the numerical types by providing appropiate functions.
 
 |Type| Description | Example devices|
 |----|-------------|----------------|
@@ -131,25 +137,27 @@ client.connect()
 
 ## Documentation
 
-Please create an object first!
+* [Client](#client)
+* [Parser](#parser)
+* [Devices](#devices)
+
+### Client
 
 ```python
 client = api.Client("127.0.0.1", 80, "username", "password")
 ```
 
-List of all function the api exposes:
-
-### setDeviceValue(deviceType, deviceId, value)
+#### setDeviceValue(deviceType, deviceId, value)
 
 ```python
 client.setDeviceValue(1, 101, 1)
 ```
 
-### Deprecated ~~setDevice(deviceType, deviceId, value)~~
+#### Deprecated ~~setDevice(deviceType, deviceId, value)~~
 
 Please use [`setDeviceValue(deviceType, deviceId, value)`](#setdevicevaluedevicetype-deviceid-value) instead
 
-### getDeviceValue(deviceId): float
+#### getDeviceValue(deviceId): float
 
 Always returns a float value for device with given id.\
 Returns `None` when device does not respond or device does not exist.
@@ -159,7 +167,7 @@ value = client.getDeviceValue(101)
 ```
 
 
-### onDeviceValue(listener)
+#### onDeviceValue(listener)
 
 Listens for all device value changes
 
@@ -171,7 +179,7 @@ client.onDeviceValue(onDeviceValueListener)
 ```
 
 
-### connect()
+#### connect()
 
 Connect to homeserver.\
 Must be called **after setting listeners** and **before get or setting values** of devices.
@@ -182,10 +190,9 @@ client.connect()
 
 **Arguments:**
 * `asynchronous`: When setting to `True` client won't block thread. Default: `False`.
-* `timeout`: time (in seconds) until connection will be dropped when server does not respond. Default: `30.0`.
 * `reconnect`: automatically reconnect when connections drops. Default: `True`.
 
-### onClientReady(listener)
+#### onClientReady(listener)
 
 It is recommended to execute sets and gets of device values after onClientReady listener received the ready event
 
@@ -198,7 +205,7 @@ def onClientReadyListener():
 client.onClientReady(onClientReadyListener)
 ```
 
-### onConnectionError(listener)
+#### onConnectionError(listener)
 
 Listens for connection error
 
@@ -209,7 +216,7 @@ def onConnectionErrorListener():
 client.onConnectionError(onConnectionErrorListener)
 ```
 
-### close()
+#### close()
 
 Close connection
 
@@ -217,7 +224,7 @@ Close connection
 client.close()
 ```
 
-### send(text)
+#### send(text)
 
 Send raw text to server.\
 **Please be aware that this might has negative side effects. Use with caution.**
@@ -225,3 +232,53 @@ Send raw text to server.\
 ```python
 client.send("1|1|1")
 ```
+
+### Parser
+
+You can find an example in the [using_the_device_parser.py](https://github.com/leoyn/gira-homeserver-api/blob/master/examples/using_the_device_parser.py) in the example directory.
+
+```python
+devices = api.Parser.parse(client.getDevices(), client)
+```
+
+Note: `client` (2nd argument) is optional. If you don't provide it, devices cannot be controlled.
+
+### Devices
+
+All devices have the following methods:
+
+* `getId()` : get gevice ID
+* `setId(id)` : set device ID
+* `getValue()`: get value of device
+* `setValue(id)`: set value of device
+* `getName()`: get name. e.g. `floor\area\room\object`
+* `setName(id)`: set name
+* `getClient()`: get [client](#client) object
+* `setClient(client)`: set [client](#client) object
+
+#### Binary Device
+
+Has only two states: `on` or `off`.
+
+* `turnOn()`: turns device on
+* `turnOff()`: turns device off
+* `getState()`: returns `True` = on **or** `False` = off
+
+#### NormalizedDevice
+
+Will set a device value on a scale from 0 to 1.
+
+0 = 0% \
+1 = 100%
+
+* `setValue(value)`: set device value between 0 and 1
+* `getValue()`: get device value
+
+#### SequenceValue
+
+Acts as a normal device. However it has `20` as the [internal device type](#internal-device-types).
+
+
+#### ValueDevice
+
+Value devices take any arbitrary input you give it. Basically the same as sequence device with the internal device type `1`.

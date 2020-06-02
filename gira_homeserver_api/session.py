@@ -1,6 +1,6 @@
 class Session:
-    def __init__(self, sessionToken):
-        self.sessionToken = sessionToken
+    def __init__(self, token):
+        self.token = token
 
-    def getSessionToken(self):
-        return self.sessionToken
+    def getToken(self):
+        return self.token
