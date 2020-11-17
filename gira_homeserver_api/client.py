@@ -113,13 +113,14 @@ class Client:
         self.__send("2|" + str(id) + "|0")
 
         start = time()
+        value = None
 
-        while self.__eventListeners["deviceValue"][str(id)] == None and time() - start < 2:
+        while (str(id) not in self.__eventListeners["deviceValue"] or self.__eventListeners["deviceValue"][str(id)] == None) and time() - start < 2:
             sleep(0.1)
 
-        value = self.__eventListeners["deviceValue"][str(id)]
-
-        del self.__eventListeners["deviceValue"][str(id)]
+        if str(id) in self.__eventListeners["deviceValue"]:
+            value = self.__eventListeners["deviceValue"][str(id)]
+            del self.__eventListeners["deviceValue"][str(id)]
 
         return value
 
